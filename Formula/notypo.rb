@@ -1,7 +1,6 @@
 class Notypo < Formula
   desc "Corrects typos in shell commands"
   homepage "https://github.com/notypo/notypo"
-  version "0.1.0"
   license any_of: ["MIT", "Apache-2.0"]
 
   if OS.mac?
@@ -26,7 +25,7 @@ class Notypo < Formula
   end
 
   livecheck do
-    url "https://github.com/notypo/notypo"
+    url :homepage
     strategy :github_latest
   end
 
@@ -35,6 +34,6 @@ class Notypo < Formula
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/notypo --version 2>&1")
+    system "#{bin}/notypo", "--version"
   end
 end
