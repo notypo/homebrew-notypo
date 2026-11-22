@@ -33,6 +33,18 @@ class Notypo < Formula
     bin.install "notypo"
   end
 
+  def caveats
+    <<~EOS
+      `typo`, `fuck`, and `t` are shell functions, not separate binaries.
+      Add this to ~/.zshrc or ~/.bashrc, then restart the shell:
+
+        eval "$(notypo --alias)"
+
+      Fish: notypo --alias | source
+      PowerShell: Invoke-Expression ((notypo --alias) -join "`n")
+    EOS
+  end
+
   test do
     system bin/"notypo", "--version"
   end
