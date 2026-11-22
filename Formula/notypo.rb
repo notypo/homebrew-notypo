@@ -34,6 +34,6 @@ class Notypo < Formula
   end
 
   test do
-    system "#{bin}/notypo", "--version"
+    system bin/"notypo", "--version"
   end
 end
