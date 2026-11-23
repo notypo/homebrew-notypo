@@ -5,22 +5,22 @@ class Notypo < Formula
 
   if OS.mac?
     if Hardware::CPU.arm?
-      url "https://github.com/notypo/notypo/releases/download/v0.1.2/notypo-macos-arm64.tar.gz"
-      sha256 "300e3374ee9468c5d9da9e09b1bd3e97f16b2c2e6be4331b870b4cede0351699"
+      url "https://github.com/notypo/notypo/releases/download/v0.1.3/notypo-macos-arm64.tar.gz"
+      sha256 "89bf5382404fa90a761f39fc7228e1cdec530176bce9a7878ba3ddd94eae20d0"
     else
-      url "https://github.com/notypo/notypo/releases/download/v0.1.2/notypo-macos-x86_64.tar.gz"
-      sha256 "70fbef0c5b3f9609fadf0e038a37d4a2a86cb4dfa85412c043ef3ac0b7e5efbf"
+      url "https://github.com/notypo/notypo/releases/download/v0.1.3/notypo-macos-x86_64.tar.gz"
+      sha256 "58fb71f580ffca9d4c278dee821206fca4a94d214a2a8d80acbce38f0d0e664b"
     end
   elsif OS.linux?
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/notypo/notypo/releases/download/v0.1.2/notypo-linux-arm64.tar.gz"
-      sha256 "e120c6c339c2aebdbbe5e299507ad6b574757b8e4547ecafa1341284c13ade5f"
+      url "https://github.com/notypo/notypo/releases/download/v0.1.3/notypo-linux-arm64.tar.gz"
+      sha256 "0d740322b2e7a8412e1f5b5416081d8a9ce73674df1f74c3c0e05e26a72b72ad"
     elsif Hardware::CPU.arm?
-      url "https://github.com/notypo/notypo/releases/download/v0.1.2/notypo-linux-armv7.tar.gz"
-      sha256 "8c5400a1f949279689e10280d6d9cf36f394e0da36630b1115a58ab93d6d72e7"
+      url "https://github.com/notypo/notypo/releases/download/v0.1.3/notypo-linux-armv7.tar.gz"
+      sha256 "1d271eeca610cde568404bea93d9c600a5e7fe0a98244f0f439c28070d0193c1"
     else
-      url "https://github.com/notypo/notypo/releases/download/v0.1.2/notypo-linux-x86_64.tar.gz"
-      sha256 "a7b18421741eab665e52370bd5a8dd8d467ab00c6f69a01fe475ebbb5361c160"
+      url "https://github.com/notypo/notypo/releases/download/v0.1.3/notypo-linux-x86_64.tar.gz"
+      sha256 "47762b7f0a74c1bb3b5d2ae28ff4f3d57226cb39be1fc0be52f28fcb7035bc4c"
     end
   end
 
