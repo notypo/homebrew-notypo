@@ -1,0 +1,97 @@
+name: Sync formula
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: Release tag to sync (defaults to the latest published release)
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formula
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout tap
+        uses: actions/checkout@v6
+      - name: Resolve release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.tag_name }}
+        run: |
+          tag="${INPUT_TAG:-$(gh api repos/notypo/notypo/releases/latest --jq .tag_name)}"
+          case "$tag" in
+            v*) ;;
+            *) echo "::error::expected a v-prefixed release tag, got '$tag'"; exit 1 ;;
+          esac
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+      - name: Download checksums
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          mkdir -p /tmp/notypo-release
+          gh release download "$TAG" --repo notypo/notypo \
+            --pattern SHA256SUMS --dir /tmp/notypo-release
+      - name: Update formula
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          tag = os.environ["TAG"]
+          sums = {}
+          for line in Path("/tmp/notypo-release/SHA256SUMS").read_text().splitlines():
+              digest, name = line.split()
+              sums[name] = digest
+
+          formula = Path("Formula/notypo.rb")
+          text = formula.read_text()
+          pattern = re.compile(
+              r'(?m)^(?P<indent>\s*)url "'
+              r'(?P<url>https://github\.com/notypo/notypo/releases/download/v[^/]+/(?P<asset>notypo-[^"]+))"'
+              r'\n\s*sha256 "[0-9a-f]+"'
+          )
+
+          def replace(match):
+              asset = match.group("asset")
+              if asset not in sums:
+                  raise SystemExit(f"no checksum for {asset}")
+              url = re.sub(
+                  r"/download/v[^/]+/", f"/download/{tag}/", match.group("url")
+              )
+              return (
+                  f'{match.group("indent")}url "{url}"\n'
+                  f'{match.group("indent")}sha256 "{sums[asset]}"'
+              )
+
+          text, count = pattern.subn(replace, text)
+          if count != 5:
+              raise SystemExit(f"expected 5 platform URLs, updated {count}")
+          formula.write_text(text)
+          print(f"updated {count} platform URLs to {tag}")
+          PY
+          if git diff --quiet; then
+            echo "Formula already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/notypo.rb
+          git commit -m "Update notypo to ${TAG#v}"
+          git push
